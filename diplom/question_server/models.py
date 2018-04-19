@@ -1,13 +1,64 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+User = get_user_model()
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 # Create your models here.
 
 
-class Book(models.Model):
-    title = models.CharField(max_length=100)
+class Question(models.Model):
+    text = models.CharField(max_length=300)
+    answerA = models.CharField(max_length=200)
+    answerB = models.CharField(max_length=200)
+    answerC = models.CharField(max_length=200, blank=True)
+    answerD = models.CharField(max_length=200, blank=True)
+    answerE = models.CharField(max_length=200, blank=True)
+    correct = models.IntegerField(verbose_name='correct_answer', blank=True)
+    image = models.ImageField(verbose_name='image_field', blank=True)
 
-    @classmethod
-    def create(cls, title):
-        book = cls(title=title)
-        # do something with the book
-        return book
+    def __str__(self):
+        return self.text
+
+
+class Operator(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    status = models.TextField(max_length=100, blank=True, default='student')
+    location = models.CharField(max_length=30, blank=True, null=True)
+    birth_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+
+class Test(models.Model):
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    start = models.DateTimeField(auto_now=True)
+    finish = models.DateTimeField(blank=True, null=True)
+    questions = models.ManyToManyField(Question)
+
+    # def __str__(self):
+    #     return self.id
+
+
+class Answers(models.Model):
+    who = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.IntegerField(null=True, blank=True)
+
+
+class Result(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    percentage = models.IntegerField(blank=True, null=True, default=0)
+
+
+@receiver(post_save, sender=User)
+def create_user_operator(sender, instance, created, **kwargs):
+    if created:
+        Operator.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_operator(sender, instance, **kwargs):
+    instance.operator.save()
