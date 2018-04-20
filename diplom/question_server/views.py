@@ -2,6 +2,10 @@ from django.contrib.auth.models import User, Group
 from question_server.models import Question
 from rest_framework import viewsets, generics
 from question_server.serializers import UserSerializer, GroupSerializer, QuestionSerializer
+from django.http import JsonResponse
+
+
+#  curl -H 'Accept: application/json; indent=4' -u shokerkill:soft11appo http://127.0.0.1:8000/questions/2/
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -38,3 +42,12 @@ class QuesionFilteredView(generics.ListAPIView):
         """
         text = self.kwargs['text']
         return Question.objects.filter(text=text)
+
+
+def create_answer(request):
+    who = request.POST.get('user', '')
+    question = request.POST.get('question', '')
+    answer = request.POST.get('answer', '')
+    if who and question and answer:
+        pass
+    return JsonResponse({'status': 'ok', 'details': 'answer saved'})
