@@ -13,11 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
+from django.urls import reverse
 from django.conf.urls import url, include
 from rest_framework import routers
 from question_server import views
+from rest_framework.authtoken import views as apiviews
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -30,4 +30,6 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url('^questions/(?P<text>.+)/$', views.QuesionFilteredView.as_view()),
+    url(r'^api-token-auth/', apiviews.obtain_auth_token),
+    url(r'^api-token-auth2/', views.CustomAuthToken.as_view()),
 ]
