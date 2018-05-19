@@ -18,4 +18,4 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class QuestionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Question
-        fields = ('text', 'answerA', 'answerB', 'answerC', 'answerD', 'answerE', 'correct', 'image')
+        fields = ('text', 'answerA', 'answerB', 'answerC', 'answerD', 'answerE', 'correct', 'image', 'test')

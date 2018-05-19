@@ -32,4 +32,5 @@ urlpatterns = [
     url('^questions/(?P<text>.+)/$', views.QuesionFilteredView.as_view()),
     url(r'^api-token-auth/', apiviews.obtain_auth_token),
     url(r'^api-token-auth2/', views.CustomAuthToken.as_view()),
+    url(r'^test/', views.CustomAuthToken.as_view()),
 ]
