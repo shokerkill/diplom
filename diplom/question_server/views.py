@@ -2,11 +2,13 @@ import json
 
 from django.contrib.auth.models import User, Group
 from django.db.models import Avg
-from rest_framework.decorators import permission_classes
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import IsAuthenticated
 
+from django.core import serializers
 from question_server.models import Question, Answers
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from question_server.serializers import UserSerializer, GroupSerializer, QuestionSerializer
 from question_server.models import Test, Result
 from django.http import JsonResponse
@@ -21,7 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
 
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
@@ -31,7 +33,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows groups to be viewed or edited.
     """
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
@@ -40,13 +42,13 @@ class QuestionViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows questions to be viewed or edited.
     """
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
 
 
 class QuesionFilteredView(generics.ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     serializer_class = QuestionSerializer
 
     def get_queryset(self):
@@ -54,11 +56,18 @@ class QuesionFilteredView(generics.ListAPIView):
         Filter questions data by some value
         :return:
         """
-        text = self.kwargs['text']
-        return Question.objects.filter(text=text)
+        test_id = self.kwargs['test_id']
+        return Question.objects.filter(test__id=test_id)
 
 
-@permission_classes((IsAuthenticated, ))
+# def questions_filtered(request, test_id):
+#     questions = Question.objects.filter(test__id=test_id)
+#     posts_serialized = serializers.serialize('json', questions)
+#     print(posts_serialized)
+#     return JsonResponse(posts_serialized, safe=False)
+
+
+# @permission_classes((IsAuthenticated, ))
 def create_answer(request):
     who = request.POST.get('user', '')
     question = request.POST.get('question', '')
@@ -87,6 +96,7 @@ class CustomAuthToken(ObtainAuthToken):
         return Response({
             'token': token.key,
             'user_id': user.pk,
+            'username': user.username,
             'email': user.email
         })
 
@@ -120,18 +130,21 @@ def mark(perc):
         return 10
 
 
-def all_tests_view(request):
+def all_tests_view(request, user_id):
     tests = Test.objects.all()
+    usr = User.objects.get(id=user_id)
     resp = []
     for test in tests:
-        resp.append({'test_id': test.id, 'test_name': test.name, 'solved': solved(request.user, test)})
+        resp.append({'test_id': test.id, 'test_name': test.name, 'solved': solved(usr, test)})
         print(resp)
-    return JsonResponse(resp)
+    return JsonResponse(resp, safe=False)
 
 
+@csrf_exempt
 def batch_answers(request):
     if request.method == 'POST':
-        data = json.loads(request.raw_post_data)
+        data = json.loads(request.body)
+        usr = User.objects.get(id=data.get('user_id'))
         test_id = data.get('test_id')
         test = Test.objects.get(id=test_id)
         answers = data.get('answers')
@@ -141,17 +154,34 @@ def batch_answers(request):
             for answer in answers:
                 q = Question.objects.get(id=answer['question_id'])
                 ans = answer['answer']
-                answer_obj = Answers.objects.create(who=request.user, question=q, answer=ans)
-                if q.correct == ans:
+                answer_obj = Answers.objects.create(who=usr, question=q, answer=ans)
+                if q.correct == int(ans):
                     correct += 1
-            percentage = int(len(test_questions)/100 * correct)
-            result = Result.objects.create(student=request.user, test=test, percentage=percentage, mark=mark(percentage))
+            percentage = int(correct / len(test_questions) * 100)
+            result = Result.objects.create(student=usr, test=test, percentage=percentage, mark=mark(percentage))
             avg = Result.objects.filter(test=test).aggregate(Avg('mark'))
+            print(avg)
             return JsonResponse({'percentage': percentage, 'correct': correct, 'mark': mark(percentage),
-                                 'avg': avg['correct__avg']})
+                                 'avg': avg['mark__avg']})
         return JsonResponse({'error': 'not all questions answered'})
 
 
 def questions_filtered(request, test_id):
-    return JsonResponse(list(Question.objects.filter(test__id=test_id).values('text', 'answerA', 'answerB', 'answerC',
-                                                                              'answerD', 'answerE', 'image', 'test')))
+    return JsonResponse(list(Question.objects.filter(test__id=test_id).values('id', 'text', 'answerA', 'answerB', 'answerC',
+                                                                              'answerD', 'answerE', 'image', 'test')), safe=False)
+
+
+@api_view(['POST'])
+def create_auth(request):
+    print(request.body)
+    try:
+        data = json.loads(request.body)
+    except:
+        data = request.POST
+    serialized = UserSerializer(data=data)
+    print(serialized.is_valid())
+    if serialized.is_valid():
+        serialized.save()
+        return Response(serialized.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)

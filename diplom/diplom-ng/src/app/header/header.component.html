@@ -1,0 +1,14 @@
+<div class="wave-header" [ngClass]="{'login': userLocation === '/login'}">
+  <div class="header-block">
+    <div class="header-container">
+
+      <div class="header-menu-container">
+        <ul class="header-menu">
+          <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"><span [routerLink]="['/tests']">Tests</span></li>
+          <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"><span>Account</span></li>
+          <li routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" style="float: right;"><span (click)="logoutHandler()">Logout</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

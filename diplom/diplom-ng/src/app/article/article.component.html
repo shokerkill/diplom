@@ -1,0 +1,63 @@
+<div class="my-account">
+  <div class="my-account-container">
+    <div class="my-account-header">
+      <div *ngIf="question <= questions.length - 1" class="questions-block">
+        <div class="question-title">Question #{{+question+1}}</div>
+        <div class="question-block">
+          <div class="question">{{questions[question].text}}</div>
+          <ul class="variants">
+            <li class="variant" *ngIf="questions[question].answerA">
+              <input type="radio" name="answer" id="answerA" [(ngModel)]="answers[question].answer" value="1">
+              <label for="answerA">{{questions[question].answerA}}</label>
+            </li>
+            <li class="variant" *ngIf="questions[question].answerB">
+              <input type="radio" name="answer" id="answerB" [(ngModel)]="answers[question].answer" value="2">
+              <label for="answerB">{{questions[question].answerB}}</label>
+            </li>
+            <li class="variant" *ngIf="questions[question].answerC">
+              <input type="radio" name="answer" id="answerC" [(ngModel)]="answers[question].answer" value="3">
+              <label for="answerC">{{questions[question].answerC}}</label>
+            </li>
+            <li class="variant" *ngIf="questions[question].answerD">
+              <input type="radio" name="answer" id="answerD" [(ngModel)]="answers[question].answer" value="4">
+              <label for="answerD">{{questions[question].answerD}}</label>
+            </li>
+            <li class="variant" *ngIf="questions[question].answerE">
+              <input type="radio" name="answer" id="answerE" [(ngModel)]="answers[question].answer" value="5">
+              <label for="answerE">{{questions[question].answerE}}</label>
+            </li>
+          </ul>
+          <div class="action">
+            <button (click)="nextQuestion()">Next</button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="question > questions.length - 1" class="results">
+        <div class="question-title">Results</div>
+        <div class="question-block">
+          <div class="question">
+            <span>Correct answers: </span><span
+            [ngClass]="{'green': results.percentage >= 90,
+            'yellow': results.percentage < 90 && results.percentage >= 60,
+            'red': results.percentage < 60}">{{results.correct}}/{{questions.length}}</span><br/>
+            <span>Correct percentage: </span><span
+            [ngClass]="{'green': results.percentage >= 90,
+            'yellow': results.percentage < 90 && results.percentage >= 60,
+            'red': results.percentage < 60}">{{results.percentage}}%</span><br/>
+            <span>Mark: </span><span
+            [ngClass]="{'green': results.percentage >= 90,
+            'yellow': results.percentage < 90 && results.percentage >= 60,
+            'red': results.percentage < 60}">{{results.mark}}</span><br/>
+            <span>Average mark: </span><span
+            [ngClass]="{'green': results.avg >= 9,
+            'yellow': results.avg < 9 && results.avg >= 6,
+            'red': results.avg < 6}">{{results.avg}}</span><br/>
+          </div>
+          <div class="action">
+            <button (click)="anotherTests()">Another Tests</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

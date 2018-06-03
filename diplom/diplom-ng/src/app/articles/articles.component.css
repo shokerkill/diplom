@@ -1,0 +1,66 @@
+.my-messages {
+  padding: 20px;
+}
+
+.my-messages-title {
+  margin-bottom: 10px;
+}
+
+.message-block {
+  width: 100%;
+  border: 1px solid #ccc;
+  background: #efefef;
+}
+
+.message {
+  border-bottom: 1px solid #fff;
+  width: 100%;
+  height: 100px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.message:hover {
+  background: #fdfdfd;
+}
+
+.message:last-of-type {
+  border-bottom: 0;
+}
+
+.user-avatar {
+  height: 100%;
+  width: 80px;
+  float: left;
+}
+
+.user-avatar img {
+  height: 100%;
+  width: 100%;
+}
+
+.message-info {
+  width: calc(100% - 80px);
+  padding-left: 20px;
+  float: left;
+}
+
+.friend-name {
+  width: 40%;
+  font-size: 19px;
+  font-weight: bold;
+  float: left;
+}
+
+.message-date {
+  width: 40%;
+  font-size: 16px;
+  float: right;
+  text-align: right;
+}
+
+.message-text {
+  width: 100%;
+  float: left;
+  font-size: 17px;
+}

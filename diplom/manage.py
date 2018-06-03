@@ -2,6 +2,8 @@
 import os
 import sys
 
+sys.path.insert(0, "C:\\cygwin64\\home\\User\\diplom\\diplom")
+
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "diplom.settings")
     try:

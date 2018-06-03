@@ -27,9 +27,13 @@ router.register(r'questions', views.QuestionViewSet)
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
+    url('^questions/(?P<test_id>.+)/$', views.questions_filtered),
+    url(r'^batch_answers/$', views.batch_answers),
+    url(r'^users/register', views.create_auth),
+    url(r'^all-tests/(?P<user_id>.+)/', views.all_tests_view),
     url(r'^', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url('^questions/(?P<text>.+)/$', views.QuesionFilteredView.as_view()),
+    # url('^questions/(?P<test_id>.+)/$', views.QuesionFilteredView.as_view()),
     url(r'^api-token-auth/', apiviews.obtain_auth_token),
     url(r'^api-token-auth2/', views.CustomAuthToken.as_view()),
     url(r'^test/', views.CustomAuthToken.as_view()),

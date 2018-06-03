@@ -1,0 +1,16 @@
+<div class="my-account">
+  <div class="my-account-container">
+    <div class="my-account-header">
+      <div class="test-block" [ngClass]="{'solved': test.solved}" *ngFor="let test of tests; let i = index"
+           style="height: 50px; width: 100%; float:left; background: #fff; border: 1px solid #ccc; line-height: 50px;">
+        <div class="title">{{test.test_name}}</div>
+        <div class="status">{{test.solved ? 'Passed' : 'Not passed'}}</div>
+        <div class="action">
+          <button *ngIf="!test.solved" [routerLink]="['/test', test.test_id]">Start</button>
+          <button *ngIf="test.solved">Start</button>
+          <!--<button routerLink="/test/{{test.test_id}}">Start</button>-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
